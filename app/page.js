@@ -5,6 +5,7 @@ import styles from "./page.module.css";
 import { FORTUNES, LUCKY_ITEMS, LUCKY_COLORS, pick, luckyNumber } from "./fortunes";
 
 const STORAGE_KEY = "fortune-history";
+const NAME_KEY = "fortune-name";
 const MAX_RECORDS = 100;
 
 function drawFortune() {
@@ -14,6 +15,14 @@ function drawFortune() {
     color: pick(LUCKY_COLORS),
     number: luckyNumber(),
   };
+}
+
+// 저장되는 "운세 내용" 문자열 (등급 + 메시지 + 행운 요소)
+function buildContent(drawn) {
+  return (
+    `${drawn.fortune.grade} · ${drawn.fortune.message} ` +
+    `(행운의 아이템: ${drawn.item.name}, 색: ${drawn.color.name}, 숫자: ${drawn.number})`
+  );
 }
 
 function formatTime(iso) {
@@ -33,16 +42,9 @@ export default function Home() {
   const [flipped, setFlipped] = useState(false);
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
-
-  // 첫 렌더 이후 브라우저에서 저장된 기록을 불러온다 (SSR/hydration 안전)
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setHistory(JSON.parse(saved));
-    } catch {
-      // 저장소 접근 불가 시 무시
-    }
-  }, []);
+  const [name, setName] = useState("");
+  // 동기화 상태: "checking" | "cloud"(Supabase) | "local"(브라우저 저장)
+  const [syncState, setSyncState] = useState("checking");
 
   const today = new Date().toLocaleDateString("ko-KR", {
     year: "numeric",
@@ -51,31 +53,95 @@ export default function Home() {
     weekday: "long",
   });
 
-  // 운세를 뽑고, 결과 표시 + 기록 저장을 한 번에 처리
+  // 마운트 후 이름/로컬 캐시 로드 + Supabase 동기화 (SSR/hydration 안전)
+  useEffect(() => {
+    let savedName = "";
+    try {
+      savedName = localStorage.getItem(NAME_KEY) || "";
+    } catch {}
+    setName(savedName);
+
+    // 1) 로컬 캐시 먼저 표시
+    let local = [];
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) local = JSON.parse(saved);
+    } catch {}
+    setHistory(local);
+
+    // 2) Supabase에서 기록 로드
+    loadHistory(savedName);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Supabase에서 기록을 불러온다 (이름이 있으면 그 이름으로 필터)
+  function loadHistory(forName) {
+    const qs = forName && forName.trim() ? `?name=${encodeURIComponent(forName.trim())}` : "";
+    fetch(`/api/fortunes${qs}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.configured) {
+          setSyncState("cloud");
+          const cloud = Array.isArray(data.records) ? data.records : [];
+          setHistory(cloud);
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cloud));
+          } catch {}
+        } else {
+          setSyncState("local");
+        }
+      })
+      .catch(() => setSyncState("local"));
+  }
+
+  function handleNameChange(e) {
+    const v = e.target.value;
+    setName(v);
+    try {
+      localStorage.setItem(NAME_KEY, v);
+    } catch {}
+  }
+
+  // 운세를 뽑고, 카드 표시 + 자동 저장(날짜/이름/운세 내용)
   function commitDraw() {
     const drawn = drawFortune();
     setResult(drawn);
     setFlipped(true);
 
+    const displayName = name.trim() ? name.trim() : "익명";
+    const content = buildContent(drawn);
     const record = {
       time: new Date().toISOString(),
-      grade: drawn.fortune.grade,
-      emoji: drawn.fortune.emoji,
-      item: `${drawn.item.emoji} ${drawn.item.name}`,
-      colorName: drawn.color.name,
-      colorHex: drawn.color.hex,
-      number: drawn.number,
+      name: displayName,
+      content,
     };
 
+    // 로컬에 즉시 저장(오프라인/폴백 대응)
     setHistory((prev) => {
-      const next = [record, ...prev].slice(0, MAX_RECORDS); // 최신순, 최대 100건
+      const next = [record, ...prev].slice(0, MAX_RECORDS);
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        // 저장 실패 시 무시
-      }
+      } catch {}
       return next;
     });
+
+    // Supabase에 자동 저장
+    fetch("/api/fortunes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name.trim(), content }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.configured) {
+          setSyncState("cloud");
+          // 저장 후 서버 기준으로 목록 새로고침(정확한 시각/정렬 반영)
+          loadHistory(name);
+        }
+      })
+      .catch(() => {
+        // 네트워크 오류 시 로컬 기록은 이미 반영됨
+      });
   }
 
   function handleDraw() {
@@ -92,8 +158,14 @@ export default function Home() {
     setHistory([]);
     try {
       localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // 무시
+    } catch {}
+    // Supabase에서 현재 이름의 기록 삭제
+    if (name.trim()) {
+      fetch(`/api/fortunes?name=${encodeURIComponent(name.trim())}`, {
+        method: "DELETE",
+      })
+        .then(() => loadHistory(name))
+        .catch(() => {});
     }
   }
 
@@ -155,14 +227,46 @@ export default function Home() {
         </div>
       </div>
 
-      <button className={styles.button} onClick={handleDraw}>
-        {flipped ? "다시 뽑기 🔄" : "운세 뽑기 ✨"}
-      </button>
+      <div className={styles.controls}>
+        <input
+          className={styles.nameInput}
+          type="text"
+          value={name}
+          onChange={handleNameChange}
+          onBlur={() => loadHistory(name)}
+          placeholder="이름을 입력하세요 (선택)"
+          maxLength={20}
+          aria-label="이름"
+        />
+        <button className={styles.button} onClick={handleDraw}>
+          {flipped ? "다시 뽑기 🔄" : "운세 뽑기 ✨"}
+        </button>
+      </div>
 
-      {/* 내 운세 기록 */}
+      {/* 운세 기록 */}
       <section className={styles.historySection}>
         <div className={styles.historyHead}>
-          <h2 className={styles.historyTitle}>내 운세 기록</h2>
+          <div className={styles.historyTitleWrap}>
+            <h2 className={styles.historyTitle}>
+              {name.trim() ? `${name.trim()}님의 운세 기록` : "운세 기록"}
+            </h2>
+            <span
+              className={`${styles.syncBadge} ${
+                syncState === "cloud" ? styles.syncCloud : ""
+              }`}
+              title={
+                syncState === "cloud"
+                  ? "Supabase에 자동 저장됩니다"
+                  : "이 브라우저에만 저장됩니다"
+              }
+            >
+              {syncState === "checking"
+                ? "동기화 확인 중…"
+                : syncState === "cloud"
+                ? "☁️ Supabase 자동 저장"
+                : "💾 브라우저 저장"}
+            </span>
+          </div>
           {history.length > 0 && (
             <button className={styles.clearButton} onClick={handleClearHistory}>
               기록 지우기
@@ -177,33 +281,17 @@ export default function Home() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>뽑은 시각</th>
-                  <th>운세</th>
-                  <th>행운의 아이템</th>
-                  <th>색</th>
-                  <th>숫자</th>
+                  <th>날짜</th>
+                  <th>이름</th>
+                  <th>운세 내용</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((row, i) => (
                   <tr key={row.time + "-" + i}>
                     <td className={styles.timeCell}>{formatTime(row.time)}</td>
-                    <td>
-                      <span className={styles.gradeCell}>
-                        {row.emoji} {row.grade}
-                      </span>
-                    </td>
-                    <td>{row.item}</td>
-                    <td>
-                      <span className={styles.colorCell}>
-                        <span
-                          className={styles.swatchSmall}
-                          style={{ background: row.colorHex }}
-                        />
-                        {row.colorName}
-                      </span>
-                    </td>
-                    <td className={styles.numberCell}>{row.number}</td>
+                    <td className={styles.nameCell}>{row.name || "익명"}</td>
+                    <td className={styles.contentCell}>{row.content}</td>
                   </tr>
                 ))}
               </tbody>

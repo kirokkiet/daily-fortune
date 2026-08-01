@@ -188,6 +188,37 @@
   display: inline-block;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.nameInput {
+  appearance: none;
+  padding: 14px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4f1ff;
+  font-size: 1rem;
+  width: 220px;
+  max-width: 60vw;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.nameInput::placeholder {
+  color: #b3a6dd;
+}
+
+.nameInput:focus {
+  outline: none;
+  border-color: rgba(255, 210, 76, 0.7);
+  background: rgba(255, 255, 255, 0.12);
+}
+
 .button {
   appearance: none;
   border: none;
@@ -227,10 +258,34 @@
   margin-bottom: 14px;
 }
 
+.historyTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .historyTitle {
   font-size: 1.25rem;
   font-weight: 700;
   color: #f3ecff;
+}
+
+.syncBadge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: #cbbef0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  white-space: nowrap;
+}
+
+.syncCloud {
+  color: #b7f7dd;
+  background: rgba(52, 199, 127, 0.14);
+  border-color: rgba(52, 199, 127, 0.4);
 }
 
 .clearButton {
@@ -271,7 +326,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
-  min-width: 560px;
+  min-width: 480px;
 }
 
 .table thead th {
@@ -324,6 +379,18 @@
 .numberCell {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+.nameCell {
+  font-weight: 700;
+  white-space: nowrap;
+  color: #f3ecff;
+}
+
+.contentCell {
+  color: #ded6f6;
+  line-height: 1.5;
+  min-width: 240px;
 }
 
 .footer {
