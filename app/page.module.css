@@ -91,11 +91,17 @@
 }
 
 .backText {
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: 0.42em;
-  padding-left: 0.42em;
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  padding-left: 0.24em;
   color: #f3ecff;
+}
+
+.backSub {
+  font-size: 0.9rem;
+  color: #cdbff2;
+  letter-spacing: 0.04em;
 }
 
 /* 앞면 (결과) */
@@ -196,7 +202,8 @@
   justify-content: center;
 }
 
-.nameInput {
+.nameInput,
+.birthInput {
   appearance: none;
   padding: 14px 18px;
   border-radius: 999px;
@@ -204,19 +211,33 @@
   background: rgba(255, 255, 255, 0.08);
   color: #f4f1ff;
   font-size: 1rem;
-  width: 220px;
-  max-width: 60vw;
   transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.nameInput {
+  width: 160px;
+  max-width: 44vw;
+}
+
+.birthInput {
+  color-scheme: dark;
 }
 
 .nameInput::placeholder {
   color: #b3a6dd;
 }
 
-.nameInput:focus {
+.nameInput:focus,
+.birthInput:focus {
   outline: none;
   border-color: rgba(255, 210, 76, 0.7);
   background: rgba(255, 255, 255, 0.12);
+}
+
+.notice {
+  color: #ffd24c;
+  font-size: 0.9rem;
+  margin-top: -14px;
 }
 
 .button {
@@ -408,4 +429,223 @@
   .title {
     font-size: 2.2rem;
   }
+}
+
+/* ── 카드 앞면 요약 (사주) ── */
+.summaryInner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+  color: #2a2140;
+}
+
+.zodiacRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.zodiacEmoji {
+  font-size: 3rem;
+}
+
+.zodiacName {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #6b3fa0;
+  text-align: left;
+}
+
+.selfEl {
+  font-size: 0.85rem;
+  color: #8a6db0;
+  text-align: left;
+}
+
+.overallWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.overallLabel {
+  font-size: 0.8rem;
+  color: #7c5aa6;
+  font-weight: 600;
+}
+
+.overallScore {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #33264d;
+}
+
+.overallStars {
+  font-size: 1.1rem;
+  color: #ffb020;
+  letter-spacing: 2px;
+}
+
+.todayEnergy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(107, 63, 160, 0.08);
+  width: 100%;
+}
+
+.energyEl {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #4a3a6b;
+}
+
+.relLabel {
+  font-size: 0.82rem;
+  color: #7c5aa6;
+}
+
+.harmony {
+  font-size: 0.78rem;
+  color: #b0559a;
+  margin-top: 2px;
+}
+
+/* ── 상세 리포트 (항목별 점수) ── */
+.reportSection {
+  width: 100%;
+  max-width: 560px;
+}
+
+.reportTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #f3ecff;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.reportCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.catRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.catHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.catLabel {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f3ecff;
+}
+
+.catScoreWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.catStars {
+  color: #ffb020;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.catScore {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  min-width: 28px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  background: linear-gradient(90deg, #a78bfa, #7c5aa6);
+}
+
+.barFill[data-key="총운"] { background: linear-gradient(90deg, #ffd24c, #ff9f6b); }
+.barFill[data-key="애정"] { background: linear-gradient(90deg, #ff8fb1, #ff6b9d); }
+.barFill[data-key="금전"] { background: linear-gradient(90deg, #34c77f, #2bb0a0); }
+.barFill[data-key="직장"] { background: linear-gradient(90deg, #5aa9ff, #6b8bff); }
+.barFill[data-key="건강"] { background: linear-gradient(90deg, #4fd1c5, #34c77f); }
+
+.catComment {
+  font-size: 0.88rem;
+  color: #ccc2ec;
+  line-height: 1.5;
+}
+
+.luckyRow {
+  display: flex;
+  gap: 10px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.luckyItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.luckyItem .luckyLabel {
+  font-size: 0.75rem;
+  color: #b3a6dd;
+  font-weight: 600;
+}
+
+.luckyVal {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #f3ecff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reportNote {
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: #9d8fca;
+  text-align: center;
+  line-height: 1.5;
 }
