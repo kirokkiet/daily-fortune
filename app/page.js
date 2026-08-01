@@ -35,6 +35,9 @@ export default function Home() {
   const [birth, setBirth] = useState("");
   const [notice, setNotice] = useState("");
   const [syncState, setSyncState] = useState("checking");
+  const [aiText, setAiText] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
 
   const today = new Date().toLocaleDateString("ko-KR", {
     year: "numeric",
@@ -110,6 +113,9 @@ export default function Home() {
     const r = analyze(birth, new Date());
     setReport(r);
     setFlipped(true);
+    // 새 운세를 뽑으면 이전 AI 풀이는 초기화
+    setAiText("");
+    setAiError("");
 
     const content = summaryText(r);
     const record = { time: new Date().toISOString(), name: name.trim() ? name.trim() : "익명", content };
@@ -144,6 +150,41 @@ export default function Home() {
     } else {
       reveal();
     }
+  }
+
+  // OpenRouter AI에게 오늘의 운세 풀이를 요청
+  function requestAI() {
+    if (!report || aiLoading) return;
+    setAiLoading(true);
+    setAiError("");
+    setAiText("");
+    const context = {
+      name: name.trim() || "익명",
+      zodiac: report.zodiac,
+      selfElement: report.selfElement,
+      todayElement: report.todayElement,
+      relation: report.relation,
+      relationLabel: report.relationLabel,
+      categories: report.categories.map((c) => ({ label: c.label, score: c.score })),
+      lucky: report.lucky,
+    };
+    fetch("/api/ai-fortune", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ context }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.configured === false) {
+          setAiError("AI 기능이 아직 설정되지 않았어요. (.env의 OPENROUTER_API_KEY 필요)");
+        } else if (data && data.text) {
+          setAiText(data.text);
+        } else {
+          setAiError(data?.error || "AI 응답을 받지 못했어요.");
+        }
+      })
+      .catch(() => setAiError("AI 요청 중 오류가 발생했어요."))
+      .finally(() => setAiLoading(false));
   }
 
   function handleClearHistory() {
@@ -288,6 +329,31 @@ export default function Home() {
               </div>
             </div>
           </div>
+          {/* AI 운세 풀이 */}
+          <div className={styles.aiBlock}>
+            {!aiText && (
+              <button
+                className={styles.aiButton}
+                onClick={requestAI}
+                disabled={aiLoading}
+              >
+                {aiLoading ? "AI가 운세를 쓰는 중… ✍️" : "🤖 AI 운세 풀이 받기"}
+              </button>
+            )}
+            {aiError && <p className={styles.aiError}>{aiError}</p>}
+            {aiText && (
+              <div className={styles.aiCard}>
+                <div className={styles.aiHead}>
+                  <span className={styles.aiTag}>🤖 AI 운세 풀이</span>
+                  <button className={styles.aiRetry} onClick={requestAI} disabled={aiLoading}>
+                    {aiLoading ? "생성 중…" : "다시 생성"}
+                  </button>
+                </div>
+                <p className={styles.aiText}>{aiText}</p>
+              </div>
+            )}
+          </div>
+
           <p className={styles.reportNote}>
             생년(년간) 오행 {report.selfElement} · 오늘 일진 오행 {report.todayElement} →{" "}
             {report.relation} 관계로 산출된 결과입니다.

@@ -649,3 +649,92 @@
   text-align: center;
   line-height: 1.5;
 }
+
+/* ── AI 운세 풀이 ── */
+.aiBlock {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.aiButton {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid rgba(167, 139, 250, 0.5);
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.18), rgba(90, 169, 255, 0.18));
+  color: #ece6ff;
+  font-size: 0.98rem;
+  font-weight: 700;
+  padding: 13px 26px;
+  border-radius: 999px;
+  transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
+}
+
+.aiButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.aiButton:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.aiError {
+  font-size: 0.85rem;
+  color: #ffb4a2;
+  text-align: center;
+}
+
+.aiCard {
+  width: 100%;
+  background: linear-gradient(160deg, rgba(167, 139, 250, 0.14), rgba(90, 169, 255, 0.08));
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.aiHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.aiTag {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #cbbef0;
+  letter-spacing: 0.02em;
+}
+
+.aiRetry {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e9dcff;
+  font-size: 0.76rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+.aiRetry:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.aiRetry:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.aiText {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #f2eeff;
+  white-space: pre-wrap;
+}
