@@ -212,10 +212,125 @@
   transform: translateY(0);
 }
 
+/* 내 운세 기록 */
+.historySection {
+  width: 100%;
+  max-width: 720px;
+  margin-top: 8px;
+}
+
+.historyHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.historyTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f3ecff;
+}
+
+.clearButton {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e9dcff;
+  font-size: 0.82rem;
+  padding: 6px 14px;
+  border-radius: 999px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.clearButton:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.empty {
+  text-align: center;
+  padding: 28px 16px;
+  color: #b9abe4;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 560px;
+}
+
+.table thead th {
+  text-align: left;
+  font-weight: 700;
+  color: #cabff2;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: 12px 16px;
+  color: #ece6ff;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  vertical-align: middle;
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.timeCell {
+  color: #b9abe4;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.gradeCell {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.colorCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.swatchSmall {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.numberCell {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .footer {
   font-size: 0.82rem;
   color: #b3a6dd;
   opacity: 0.8;
+  margin-top: 4px;
 }
 
 @media (max-width: 420px) {
